@@ -2,7 +2,7 @@ exposeLivedata = function(namespace) {
   // instrumenting session
   const fakeSocket = {send: function() {}, close: function() {}, headers: []};
   const ddpConnectMessage = {msg: 'connect', version: 'pre1', support: ['pre1']};
-  Meteor.default_server._handleConnect(fakeSocket, ddpConnectMessage);
+  Meteor.server._handleConnect(fakeSocket, ddpConnectMessage);
 
   if(fakeSocket._meteorSession) { // for newer meteor versions
     namespace.Session = fakeSocket._meteorSession.constructor;
@@ -10,15 +10,15 @@ exposeLivedata = function(namespace) {
     exposeSubscription(fakeSocket._meteorSession, namespace);
     exposeSessionCollectionView(fakeSocket._meteorSession, namespace);
 
-    if (Meteor.default_server._removeSession) {
+    if (Meteor.server._removeSession) {
       // 1.7 +
-      Meteor.default_server._removeSession(fakeSocket._meteorSession);
-    } else if (Meteor.default_server._closeSession) {
+      Meteor.server._removeSession(fakeSocket._meteorSession);
+    } else if (Meteor.server._closeSession) {
       // 0.7.x +
-      Meteor.default_server._closeSession(fakeSocket._meteorSession);
-    } else if(Meteor.default_server._destroySession) {
+      Meteor.server._closeSession(fakeSocket._meteorSession);
+    } else if(Meteor.server._destroySession) {
       // 0.6.6.x
-      Meteor.default_server._destroySession(fakeSocket._meteorSession);
+      Meteor.server._destroySession(fakeSocket._meteorSession);
     }
   } else if(fakeSocket.meteor_session) { // support for 0.6.5.x
     namespace.Session = fakeSocket.meteor_session.constructor;
